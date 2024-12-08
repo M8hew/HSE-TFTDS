@@ -1,0 +1,109 @@
+openapi: 3.0.3
+info:
+  title: Key-Value Storage API
+  version: 1.0.0
+  description: |
+    A simple API for managing a key-value store. 
+    Supports CRUD operations and Compare-And-Swap (CAS) functionality.
+
+paths:
+  /keys/{key}:
+    get:
+      summary: Retrieve the value of a key
+      parameters:
+        - name: key
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The key to retrieve
+      responses:
+        '200':
+          description: Value retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  key:
+                    type: string
+                  value:
+                    type: string
+        '404':
+          description: Key not found
+    put:
+      summary: Create or update the value for a key
+      parameters:
+        - name: key
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The key to create or update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                value:
+                  type: string
+              required:
+                - value
+      responses:
+        '200':
+          description: Key updated successfully
+        '201':
+          description: Key created successfully
+    delete:
+      summary: Delete a key and its value
+      parameters:
+        - name: key
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The key to delete
+      responses:
+        '200':
+          description: Key deleted successfully
+        '404':
+          description: Key not found
+  /cas:
+    post:
+      summary: Compare-And-Swap (CAS) operation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                key:
+                  type: string
+                old_value:
+                  type: string
+                new_value:
+                  type: string
+              required:
+                - key
+                - old_value
+                - new_value
+      responses:
+        '200':
+          description: Value successfully swapped
+        '409':
+          description: CAS operation failed due to value mismatch
+        '404':
+          description: Key not found
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+
