@@ -93,12 +93,13 @@ func (s *RaftServer) Start(port string) {
 }
 
 func (s *RaftServer) IsLeader() bool {
-	return s.curLeader == s.id
+	return (s.state == Leader)
 }
 
 func (s *RaftServer) ReplicateEntry(entry LogEntry) bool {
 	s.mu.Lock()
-	defer s.mu.Unlock()
+
+	s.logger.Info("ReplicateEntry called")
 
 	var (
 		prevLogInd  = int64(len(s.log) - 1)
@@ -133,7 +134,7 @@ func (s *RaftServer) ReplicateEntry(entry LogEntry) bool {
 				return
 			}
 			if !res.Success {
-				s.logger.Debug("Append entry failed", zap.String("peer_id", string(peer)), zap.Int64("node_id", s.id))
+				s.logger.Info("Append entry failed", zap.String("peer_id", string(peer)), zap.Int64("node_id", s.id))
 				return
 			}
 
@@ -145,14 +146,20 @@ func (s *RaftServer) ReplicateEntry(entry LogEntry) bool {
 			s.mu.Unlock()
 		}(peer)
 	}
+
+	s.mu.Unlock()
 	wg.Wait()
+	s.mu.Lock()
+
+	s.logger.Info("Waited for all gorutines")
 
 	if count <= len(s.peers)/2 {
 		return false
 	}
 
-	s.apply(entry)
 	s.commitIndex = int64(len(s.log) - 1)
 
-	return true
+	s.mu.Unlock()
+
+	return s.apply(entry)
 }

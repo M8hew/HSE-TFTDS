@@ -5,10 +5,9 @@ import "go.uber.org/zap"
 type Role int
 
 const (
-	_ = iota
-	Leader
-	Follower
+	Follower = iota
 	Candidate
+	Leader
 )
 
 func (s *RaftServer) becomeCandidate() {
@@ -20,16 +19,14 @@ func (s *RaftServer) becomeCandidate() {
 	s.curTerm++
 	s.votedFor = &s.id
 
-	s.resetElectionTimer()
-
 	s.mu.Unlock()
 
+	s.resetElectionTimer()
 	s.startElection()
 }
 
 func (s *RaftServer) becomeLeader() {
 	s.mu.Lock()
-	defer s.mu.Unlock()
 
 	s.logger.Info("Become leader", zap.Int64("node_id", s.id))
 
@@ -42,13 +39,14 @@ func (s *RaftServer) becomeLeader() {
 		s.electionTimer.Stop()
 	}
 
+	s.mu.Unlock()
+
 	s.resetHeartbeatTimer()
 	go s.sendHeartbeats()
 }
 
 func (s *RaftServer) becomeFollower(term int64, leaderID int64) {
 	s.mu.Lock()
-	defer s.mu.Unlock()
 
 	s.logger.Info("Become follower", zap.Int64("term", term), zap.Int64("node_id", s.id))
 
@@ -56,6 +54,8 @@ func (s *RaftServer) becomeFollower(term int64, leaderID int64) {
 	s.curTerm = term
 	s.votedFor = nil
 	s.curLeader = leaderID
+
+	s.mu.Unlock()
 
 	s.resetElectionTimer()
 }

@@ -54,6 +54,7 @@ func (s *RaftServer) AppendEntries(ctx context.Context, req *pb.AppendEntriesReq
 	}
 
 	if req.Term < s.curTerm {
+		s.logger.Info("myTerm", zap.Int64("node_id", s.id), zap.Int64("req_term", req.Term), zap.Int64("my_term", s.curTerm))
 		return &failedRequest, nil
 	}
 
@@ -69,6 +70,7 @@ func (s *RaftServer) AppendEntries(ctx context.Context, req *pb.AppendEntriesReq
 	}
 
 	s.mu.Lock()
+	defer s.mu.Unlock()
 
 	for i, entry := range req.Entries {
 		ind := req.PrevLogIndex + int64(i) + 1
@@ -81,17 +83,11 @@ func (s *RaftServer) AppendEntries(ctx context.Context, req *pb.AppendEntriesReq
 		s.log = append(s.log, fromPbEntry(entry))
 	}
 
-	s.mu.Unlock()
-
 	if req.LeaderCommit > s.commitIndex {
-		s.mu.Lock()
-
 		for i := s.commitIndex; i <= req.LeaderCommit; i++ {
 			s.apply(s.log[i])
 		}
 		s.commitIndex = req.LeaderCommit
-
-		s.mu.Unlock()
 	}
 
 	return &pb.AppendEntriesResponse{

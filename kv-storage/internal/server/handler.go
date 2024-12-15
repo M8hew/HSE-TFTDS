@@ -113,6 +113,8 @@ func (h *Handler) PutKeysKey(ctx echo.Context, key string) error {
 // Retrieve the value of a key
 // (GET /keys/{key})
 func (h *Handler) GetKeysKey(ctx echo.Context, key string) error {
+	h.logger.Info("GetKeysKey")
+
 	if h.raftServer.IsLeader() {
 		return ctx.JSON(http.StatusSeeOther, "Read from master may be inconsistent, try another node")
 	}

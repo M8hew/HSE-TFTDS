@@ -21,8 +21,8 @@ func NewCASEntry(key, oldValue, newValue string) LogEntry {
 	return LogEntry{
 		Command:  CAS,
 		Key:      key,
-		Value:    &oldValue,
-		OldValue: &newValue,
+		Value:    &newValue,
+		OldValue: &oldValue,
 	}
 }
 
@@ -41,20 +41,21 @@ func NewDeleteEntry(key string) LogEntry {
 	}
 }
 
-func (s *RaftServer) apply(entry LogEntry) {
+func (s *RaftServer) apply(entry LogEntry) bool {
 	switch entry.Command {
 	case SET:
-		s.logger.Debug("Applying SET command", zap.Int64("node_id", s.id))
-		s.storage.Set(entry.Key, *entry.Value)
+		s.logger.Info("Applying SET command", zap.Int64("node_id", s.id))
+		err := s.storage.Set(entry.Key, *entry.Value)
+		return err == nil
 	case CAS:
-		s.logger.Debug("Applying CAS command", zap.Int64("node_id", s.id))
-		s.storage.CAS(entry.Key, *entry.OldValue, *entry.Value)
+		s.logger.Info("Applying CAS command", zap.Int64("node_id", s.id))
+		return s.storage.CAS(entry.Key, *entry.OldValue, *entry.Value)
 	case UPD:
-		s.logger.Debug("Applying UPD command", zap.Int64("node_id", s.id))
-		s.storage.Update(entry.Key, *entry.Value)
+		s.logger.Info("Applying UPD command", zap.Int64("node_id", s.id))
+		return s.storage.Update(entry.Key, *entry.Value)
 	case DEL:
-		s.logger.Debug("Applying DEL command", zap.Int64("node_id", s.id))
-		s.storage.Del(entry.Key)
+		s.logger.Info("Applying DEL command", zap.Int64("node_id", s.id))
+		return s.storage.Del(entry.Key)
 	default:
 		panic("unknown command: " + entry.Command)
 	}
