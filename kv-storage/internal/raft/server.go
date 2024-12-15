@@ -78,7 +78,7 @@ func NewRaftServer(myID int64, peers []PeerAddr, storage *storage.LocalStorage, 
 func (s *RaftServer) Start(port string) {
 	listener, err := net.Listen("tcp", port)
 	if err != nil {
-		s.logger.Fatal("failed to listen", zap.Error(err))
+		s.logger.Fatal("failed to listen", zap.Error(err), zap.Int64("node_id", s.id))
 		return
 	}
 
@@ -86,10 +86,10 @@ func (s *RaftServer) Start(port string) {
 	pb.RegisterRaftServer(server, s)
 
 	if err := server.Serve(listener); err != nil {
-		s.logger.Fatal("failed to serve", zap.Error(err))
+		s.logger.Fatal("failed to serve", zap.Error(err), zap.Int64("node_id", s.id))
 	}
 
-	s.logger.Info("GRPC server started", zap.String("port", port), zap.Int64("id", s.id))
+	s.logger.Info("GRPC server started", zap.String("port", port), zap.Int64("node_id", s.id))
 }
 
 func (s *RaftServer) IsLeader() bool {
@@ -129,11 +129,11 @@ func (s *RaftServer) ReplicateEntry(entry LogEntry) bool {
 
 			res, err := sendAppendEntries(peer, req)
 			if err != nil {
-				s.logger.Error("Append entry error", zap.String("peer_id", string(peer)), zap.Error(err))
+				s.logger.Error("Append entry error", zap.String("peer_id", string(peer)), zap.Error(err), zap.Int64("node_id", s.id))
 				return
 			}
 			if !res.Success {
-				s.logger.Debug("Append entry failed", zap.String("peer_id", string(peer)))
+				s.logger.Debug("Append entry failed", zap.String("peer_id", string(peer)), zap.Int64("node_id", s.id))
 				return
 			}
 

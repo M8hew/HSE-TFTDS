@@ -65,7 +65,7 @@ func main() {
 	go func() {
 		defer wg.Done()
 
-		raftServer.Start(fmt.Sprintf("0.0.0.0:%d", cfg.RaftPort))
+		raftServer.Start(fmt.Sprintf(":%d", cfg.RaftPort))
 	}()
 
 	wg.Add(1)

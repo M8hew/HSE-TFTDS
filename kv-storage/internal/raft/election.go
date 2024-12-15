@@ -27,7 +27,7 @@ func (s *RaftServer) startElection() {
 
 			resp, err := sendRequestVote(peer, req)
 			if err != nil {
-				s.logger.Error("startElection error", zap.String("peer_id", string(peer)), zap.Error(err))
+				s.logger.Error("startElection error", zap.String("peer_id", string(peer)), zap.Error(err), zap.Int64("node_id", s.id))
 				return
 			}
 
@@ -46,7 +46,7 @@ func (s *RaftServer) startElection() {
 
 // grpc request handler
 func (s *RaftServer) RequestVote(ctx context.Context, req *pb.RequestVoteRequest) (*pb.RequestVoteResponse, error) {
-	s.logger.Info("RequestVote handler")
+	s.logger.Info("RequestVote handler", zap.Int64("node_id", s.id))
 
 	failedRequest := pb.RequestVoteResponse{
 		Term:        s.curTerm,

@@ -1,5 +1,7 @@
 package raft
 
+import "go.uber.org/zap"
+
 const (
 	SET = "set"
 	CAS = "cas"
@@ -42,16 +44,16 @@ func NewDeleteEntry(key string) LogEntry {
 func (s *RaftServer) apply(entry LogEntry) {
 	switch entry.Command {
 	case SET:
-		s.logger.Debug("Applying SET command")
+		s.logger.Debug("Applying SET command", zap.Int64("node_id", s.id))
 		s.storage.Set(entry.Key, *entry.Value)
 	case CAS:
-		s.logger.Debug("Applying CAS command")
+		s.logger.Debug("Applying CAS command", zap.Int64("node_id", s.id))
 		s.storage.CAS(entry.Key, *entry.OldValue, *entry.Value)
 	case UPD:
-		s.logger.Debug("Applying UPD command")
+		s.logger.Debug("Applying UPD command", zap.Int64("node_id", s.id))
 		s.storage.Update(entry.Key, *entry.Value)
 	case DEL:
-		s.logger.Debug("Applying DEL command")
+		s.logger.Debug("Applying DEL command", zap.Int64("node_id", s.id))
 		s.storage.Del(entry.Key)
 	default:
 		panic("unknown command: " + entry.Command)

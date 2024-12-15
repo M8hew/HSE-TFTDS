@@ -15,7 +15,7 @@ func (s *RaftServer) becomeCandidate() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	s.logger.Info("Become candidate and start election")
+	s.logger.Info("Become candidate and start election", zap.Int64("node_id", s.id))
 
 	s.state = Candidate
 	s.curTerm++
@@ -29,7 +29,7 @@ func (s *RaftServer) becomeLeader() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	s.logger.Info("Become leader")
+	s.logger.Info("Become leader", zap.Int64("node_id", s.id))
 
 	s.state = Leader
 	s.curLeader = s.id
@@ -48,7 +48,7 @@ func (s *RaftServer) becomeFollower(term int64, leaderID int64) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	s.logger.Info("Become follower", zap.Int64("term", term))
+	s.logger.Info("Become follower", zap.Int64("term", term), zap.Int64("node_id", s.id))
 
 	s.state = Follower
 	s.curTerm = term

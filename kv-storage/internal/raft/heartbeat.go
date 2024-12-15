@@ -47,7 +47,7 @@ func (s *RaftServer) sendHeartbeats() {
 
 				res, err := sendAppendEntries(peer, req)
 				if err != nil {
-					s.logger.Error("sendHeartbeats error", zap.String("peer_id", string(peer)), zap.Error(err))
+					s.logger.Error("sendHeartbeats error", zap.String("peer_id", string(peer)), zap.Error(err), zap.Int64("node_id", s.id))
 				}
 
 				if nextInd == 0 {
@@ -57,7 +57,7 @@ func (s *RaftServer) sendHeartbeats() {
 				s.mu.Lock()
 
 				if !res.Success {
-					s.logger.Info("Replica sync broken", zap.String("peer_id", string(peer)), zap.Int64("leader", s.id))
+					s.logger.Info("Replica sync broken", zap.String("peer_id", string(peer)), zap.Int64("leader", s.id), zap.Int64("node_id", s.id))
 					s.nextIndex[peer] = nextInd - 1
 					return
 				}

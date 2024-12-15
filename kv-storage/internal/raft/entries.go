@@ -3,6 +3,8 @@ package raft
 import (
 	"context"
 
+	"go.uber.org/zap"
+
 	pb "kvstorage/api/proto"
 )
 
@@ -44,7 +46,7 @@ func toPbEntrySlice(entries []LogEntry) []*pb.LogEntry {
 
 // grpc handler
 func (s *RaftServer) AppendEntries(ctx context.Context, req *pb.AppendEntriesRequest) (*pb.AppendEntriesResponse, error) {
-	s.logger.Info("AppendEntries handler")
+	s.logger.Info("AppendEntries handler", zap.Int64("node_id", s.id))
 
 	failedRequest := pb.AppendEntriesResponse{
 		Term:    s.curTerm,

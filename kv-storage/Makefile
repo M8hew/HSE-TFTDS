@@ -13,7 +13,9 @@ proto:
 .PHONY: run
 run:
 	@go build
-	@./kvstorage -id=1 -http_port=8080 -raft_port=9091 localhost:9092 localhost:9093
-	@./kvstorage -id=2 -http_port=8081 -raft_port=9092 localhost:9091 localhost:9093
-	@./kvstorage -id=3 -http_port=8082 -raft_port=9093 localhost:9091 localhost:9092
+
+	@./kvstorage -id=1 -http_port=8080 -raft_port=5051 localhost:5052 localhost:5053 &
+	@./kvstorage -id=2 -http_port=8081 -raft_port=5052 localhost:5051 localhost:5053 &
+	@./kvstorage -id=3 -http_port=8082 -raft_port=5053 localhost:5051 localhost:5052 &
+	
 	@rm kvstorage
