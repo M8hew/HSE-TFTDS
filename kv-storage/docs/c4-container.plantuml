@@ -1,0 +1,41 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+title KV-storage diagram
+
+Person(user, "User")
+
+System_Boundary(kv-service, "Service instance") {
+    Container(httpProxy, "HTTP Proxy", "Redirect request to RaftServer\Storage")
+    Container(storage, "Storage", "Contain state")
+    Container(raftServer, "RaftServer", "Replicate log entry")
+
+    Rel_D(httpProxy, raftServer, "Pass requests for replication")
+    Rel_L(httpProxy, storage, "Read")
+    Rel_U(raftServer, storage, "Write commited entries")
+}
+
+System_Boundary(kv-service_1, "Service instance") {
+    Container(storage_1, "Storage", "Contain state")
+    Container(raftServer_1, "RaftServer", "Replicate log entry")
+    Rel_D(raftServer_1, storage_1, "")
+}
+
+System_Boundary(kv-service_2, "Service instance") {
+    Container(storage_2, "Storage", "Contain state")
+    Container(raftServer_2, "RaftServer", "Replicate log entry")
+    Rel_D(raftServer_2, storage_2, "")
+}
+
+Rel_D(raftServer, raftServer_1, "Raft", "grpc")
+Rel(raftServer_1, raftServer, "")
+
+Rel_D(raftServer, raftServer_2, "Raft", "grpc")
+Rel(raftServer, raftServer_2, "")
+
+Rel_L(raftServer_2, raftServer_1, "Raft", "grpc")
+Rel_R(raftServer_1, raftServer_2, "")
+
+
+Rel(user, httpProxy, "Request", "HTTP")
+@enduml

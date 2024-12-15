@@ -31,15 +31,17 @@ paths:
                     type: string
         '404':
           description: Key not found
+        '303':
+          description: Can't read from master
     put:
-      summary: Create or update the value for a key
+      summary: Update the value for an existing key
       parameters:
         - name: key
           in: path
           required: true
           schema:
             type: string
-          description: The key to create or update
+          description: The key to update
       requestBody:
         required: true
         content:
@@ -54,8 +56,8 @@ paths:
       responses:
         '200':
           description: Key updated successfully
-        '201':
-          description: Key created successfully
+        '404':
+          description: Key not found
     delete:
       summary: Delete a key and its value
       parameters:
@@ -70,6 +72,30 @@ paths:
           description: Key deleted successfully
         '404':
           description: Key not found
+
+  /keys:
+    post:
+      summary: Create a new key-value pair
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                key:
+                  type: string
+                value:
+                  type: string
+              required:
+                - key
+                - value
+      responses:
+        '201':
+          description: Key created successfully
+        '409':
+          description: Key already exists
+
   /cas:
     post:
       summary: Compare-And-Swap (CAS) operation
@@ -97,6 +123,7 @@ paths:
           description: CAS operation failed due to value mismatch
         '404':
           description: Key not found
+
 components:
   schemas:
     ErrorResponse:
@@ -106,4 +133,3 @@ components:
           type: string
         message:
           type: string
-
