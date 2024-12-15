@@ -13,7 +13,6 @@ const (
 
 func (s *RaftServer) becomeCandidate() {
 	s.mu.Lock()
-	defer s.mu.Unlock()
 
 	s.logger.Info("Become candidate and start election", zap.Int64("node_id", s.id))
 
@@ -22,6 +21,9 @@ func (s *RaftServer) becomeCandidate() {
 	s.votedFor = &s.id
 
 	s.resetElectionTimer()
+
+	s.mu.Unlock()
+
 	s.startElection()
 }
 
@@ -41,7 +43,7 @@ func (s *RaftServer) becomeLeader() {
 	}
 
 	s.resetHeartbeatTimer()
-	s.sendHeartbeats()
+	go s.sendHeartbeats()
 }
 
 func (s *RaftServer) becomeFollower(term int64, leaderID int64) {

@@ -7,9 +7,6 @@ import (
 )
 
 func (s *RaftServer) sendHeartbeats() {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
 	if s.state != Leader {
 		return
 	}
@@ -50,11 +47,11 @@ func (s *RaftServer) sendHeartbeats() {
 					s.logger.Error("sendHeartbeats error", zap.String("peer_id", string(peer)), zap.Error(err), zap.Int64("node_id", s.id))
 				}
 
+				s.mu.Lock()
+
 				if nextInd == 0 {
 					return
 				}
-
-				s.mu.Lock()
 
 				if !res.Success {
 					s.logger.Info("Replica sync broken", zap.String("peer_id", string(peer)), zap.Int64("leader", s.id), zap.Int64("node_id", s.id))

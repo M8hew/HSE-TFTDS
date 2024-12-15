@@ -14,8 +14,8 @@ proto:
 run:
 	@go build
 
-	@./kvstorage -id=1 -http_port=8080 -raft_port=5051 localhost:5052 localhost:5053 &
-	@./kvstorage -id=2 -http_port=8081 -raft_port=5052 localhost:5051 localhost:5053 &
-	@./kvstorage -id=3 -http_port=8082 -raft_port=5053 localhost:5051 localhost:5052 &
+	@./kvstorage -id=1 -http_port=8080 -raft_port=6051 localhost:6052 localhost:6053 &
+	@./kvstorage -id=2 -http_port=8081 -raft_port=6052 localhost:6051 localhost:6053 &
+	@./kvstorage -id=3 -http_port=8082 -raft_port=6053 localhost:6051 localhost:6052 &
 	
 	@rm kvstorage

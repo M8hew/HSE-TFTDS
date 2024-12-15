@@ -63,8 +63,8 @@ func NewRaftServer(myID int64, peers []PeerAddr, storage *storage.LocalStorage, 
 		nextIndex:   make(map[PeerAddr]int64),
 		matchIndex:  make(map[int64]int),
 
-		electionTimeout:  time.Duration(8*myID+3) * time.Second,
-		heartbeatTimeout: 2 * time.Second,
+		electionTimeout:  time.Duration(4*myID+3) * time.Second,
+		heartbeatTimeout: 3 * time.Second,
 
 		logger:  logger,
 		storage: storage,

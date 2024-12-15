@@ -37,7 +37,7 @@ func (s *RaftServer) startElection() {
 
 				votes++
 				if votes > len(s.peers)/2 && s.state == Candidate {
-					s.becomeLeader()
+					go s.becomeLeader()
 				}
 			}
 		}(peer)

@@ -59,7 +59,7 @@ func (s *RaftServer) AppendEntries(ctx context.Context, req *pb.AppendEntriesReq
 
 	s.becomeFollower(req.Term, req.LeaderID)
 
-	if req.PrevLogIndex < 0 {
+	if req.PrevLogIndex >= 0 {
 		if req.PrevLogIndex >= int64(len(s.log)) {
 			return &failedRequest, nil
 		}
