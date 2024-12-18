@@ -10,22 +10,22 @@ func TestNewVectorClock(t *testing.T) {
 	vc := NewVectorClock()
 
 	assert.NotNil(t, vc)
-	assert.Empty(t, vc.clock)
+	assert.Empty(t, vc.Clock)
 }
 
 func TestIncrement(t *testing.T) {
 	vc := NewVectorClock()
 	vc.Increment("node1")
 
-	assert.Equal(t, 1, vc.clock["node1"])
+	assert.Equal(t, 1, vc.Clock["node1"])
 
 	vc.Increment("node1")
 
-	assert.Equal(t, 2, vc.clock["node1"])
+	assert.Equal(t, 2, vc.Clock["node1"])
 
 	vc.Increment("node2")
 
-	assert.Equal(t, 1, vc.clock["node2"])
+	assert.Equal(t, 1, vc.Clock["node2"])
 }
 
 func TestMerge(t *testing.T) {
@@ -42,9 +42,9 @@ func TestMerge(t *testing.T) {
 
 	vc1.Merge(vc2)
 
-	assert.Equal(t, 2, vc1.clock["node1"])
-	assert.Equal(t, 1, vc1.clock["node2"])
-	assert.Equal(t, 1, vc1.clock["node3"])
+	assert.Equal(t, 2, vc1.Clock["node1"])
+	assert.Equal(t, 1, vc1.Clock["node2"])
+	assert.Equal(t, 1, vc1.Clock["node3"])
 }
 
 func TestHappensBefore(t *testing.T) {
