@@ -34,7 +34,7 @@ func NewReplica(id string, peers []string) *Replica {
 		peers:            peers,
 		online:           false,
 		mu:               sync.Mutex{},
-		heartbeatTimeout: 5 * time.Second,
+		heartbeatTimeout: 10 * time.Second,
 	}
 }
 
@@ -56,11 +56,6 @@ func (r *Replica) HandleUpdate(w http.ResponseWriter, req *http.Request) {
 	fmt.Println("HandleUpdate")
 	r.mu.Lock()
 	defer r.mu.Unlock()
-
-	if !r.online {
-		http.Error(w, "Replica is offline", http.StatusServiceUnavailable)
-		return
-	}
 
 	var updateReq UpdateRequest
 	if err := json.NewDecoder(req.Body).Decode(&updateReq); err != nil {
